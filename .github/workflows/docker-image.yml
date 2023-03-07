@@ -1,0 +1,30 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  Daily-build:
+    if: github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: |
+        docker build . --file Dockerfile --tag registry.cn-hangzhou.aliyuncs.com/wei-z/nonebot2-base-image::latest
+    - name: Login to ACR
+      uses: aliyun/acr-login@v1
+      with:
+        login-server: https://registry.cn-qingdao.aliyuncs.com
+        username: "${{ secrets.ACR_USERNAME }}"
+        password: "${{ secrets.ACR_PASSWORD }}"
+        
+    - name: Push image
+      run: |
+        docker push registry.cn-hangzhou.aliyuncs.com/wei-z/nonebot2-base-image::latest
+
+        
